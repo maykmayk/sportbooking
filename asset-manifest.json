@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/sportbooking/static/css/main.f855e6bc.css",
+    "main.js": "/sportbooking/static/js/main.50c8ba76.js",
+    "static/js/453.7e6ddcaf.chunk.js": "/sportbooking/static/js/453.7e6ddcaf.chunk.js",
+    "static/media/logo.svg": "/sportbooking/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/sportbooking/index.html",
+    "main.f855e6bc.css.map": "/sportbooking/static/css/main.f855e6bc.css.map",
+    "main.50c8ba76.js.map": "/sportbooking/static/js/main.50c8ba76.js.map",
+    "453.7e6ddcaf.chunk.js.map": "/sportbooking/static/js/453.7e6ddcaf.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f855e6bc.css",
+    "static/js/main.50c8ba76.js"
+  ]
+}
