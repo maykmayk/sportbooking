@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/sportbooking/static/css/main.0cfd4b1c.css",
-    "main.js": "/sportbooking/static/js/main.25d1daf4.js",
+    "main.css": "/sportbooking/static/css/main.d3a7b27b.css",
+    "main.js": "/sportbooking/static/js/main.9e868c1b.js",
     "static/js/453.7e6ddcaf.chunk.js": "/sportbooking/static/js/453.7e6ddcaf.chunk.js",
     "static/media/poppins-latin-400-italic.woff": "/sportbooking/static/media/poppins-latin-400-italic.32d83fc8640f458da164.woff",
     "static/media/poppins-latin-400-normal.woff": "/sportbooking/static/media/poppins-latin-400-normal.1458587c0aa7cd06b82b.woff",
@@ -12,12 +12,12 @@
     "static/media/poppins-latin-ext-400-italic.woff2": "/sportbooking/static/media/poppins-latin-ext-400-italic.0fa853d7b7f421babd78.woff2",
     "static/media/poppins-latin-ext-400-normal.woff2": "/sportbooking/static/media/poppins-latin-ext-400-normal.d7c074a9c34fe9785f69.woff2",
     "index.html": "/sportbooking/index.html",
-    "main.0cfd4b1c.css.map": "/sportbooking/static/css/main.0cfd4b1c.css.map",
-    "main.25d1daf4.js.map": "/sportbooking/static/js/main.25d1daf4.js.map",
+    "main.d3a7b27b.css.map": "/sportbooking/static/css/main.d3a7b27b.css.map",
+    "main.9e868c1b.js.map": "/sportbooking/static/js/main.9e868c1b.js.map",
     "453.7e6ddcaf.chunk.js.map": "/sportbooking/static/js/453.7e6ddcaf.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.0cfd4b1c.css",
-    "static/js/main.25d1daf4.js"
+    "static/css/main.d3a7b27b.css",
+    "static/js/main.9e868c1b.js"
   ]
 }
