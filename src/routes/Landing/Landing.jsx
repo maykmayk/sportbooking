@@ -1,11 +1,13 @@
 import { Menu, Star } from "lucide-react";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ApiManager from "../../api/ApiManager";
 
 export const Landing = () => {
+    const api = new ApiManager();
+
     const days = [
-        { label: "GIO", day: "06", month: "Feb", selected: true },
+        { label: "GIO", day: "06", month: "Feb" },
         { label: "VEN", day: "07", month: "Feb" },
         { label: "SAB", day: "08", month: "Feb" },
         { label: "DOM", day: "09", month: "Feb" },
@@ -21,45 +23,6 @@ export const Landing = () => {
         { label: "MER", day: "19", month: "Feb" },
     ];
 
-    const slots = [
-        { time: "06:00", count: 1 },
-        { time: "06:30", count: 2 },
-        { time: "07:00", count: 1 },
-        { time: "07:30", count: 2 },
-        { time: "08:00", count: 1 },
-        { time: "08:30", count: 3 },
-        { time: "09:00", count: 2 },
-        { time: "09:30", count: 10 },
-        { time: "10:00", count: 6 },
-        { time: "10:30", count: 2 },
-        { time: "11:00", count: 1 },
-        { time: "11:30", count: 4 },
-        { time: "12:00", count: 1 },
-        { time: "12:30", disabled: true },
-        { time: "13:00", disabled: true },
-        { time: "13:30", count: 1 },
-        { time: "14:00", count: 4 },
-        { time: "14:30", count: 7 },
-        { time: "15:00", count: 6 },
-        { time: "15:30", count: 5 },
-        { time: "16:00", count: 2 },
-        { time: "16:30", count: 1 },
-        { time: "17:00", disabled: true },
-        { time: "17:30", count: 1 },
-        { time: "18:00", disabled: true },
-        { time: "18:30", count: 2 },
-        { time: "19:00", disabled: true },
-        { time: "19:30", count: 1 },
-        { time: "20:00", count: 2 },
-        { time: "20:30", disabled: true },
-        { time: "21:00", count: 1 },
-        { time: "21:30", count: 1 },
-        { time: "22:00", count: 1 },
-        { time: "22:30", count: 2 },
-        { time: "23:00", count: 3 },
-        { time: "23:30", count: 1 },
-    ];
-
     const images = [
         "https://plus.unsplash.com/premium_photo-1707862953516-9dd3032b69a8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFkZWx8ZW58MHx8MHx8fDA%3D",
         "https://images.unsplash.com/photo-1646649853703-7645147474ba?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGFkZWx8ZW58MHx8MHx8fDA%3D",
@@ -69,8 +32,39 @@ export const Landing = () => {
     ];
 
     const randomImage = images[Math.floor(Math.random() * images.length)];
-    
-    const api = new ApiManager();
+
+    const [selectedOffset, setSelectedOffset] = useState(0); // 0 = oggi
+    const [slots, setSlots] = useState([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        fetchSlots();
+    }, [selectedOffset]);
+
+    const fetchSlots = async () => {
+        setLoading(true);
+        try {
+            console.log(`/PublicMatches/offset/${selectedOffset}`)
+            const response = await api.get(`/PublicMatches/offset/${selectedOffset}`);
+            const data = response.data;
+
+            const parsedSlots = data.map(item => {
+                const hour = item.localHour.toString().padStart(2, "0");
+                const minute = item.localMinute.toString().padStart(2, "0");
+                return {
+                    time: `${hour}:${minute}`,
+                    count: item.openedCount
+                };
+            });
+
+            setSlots(parsedSlots);
+        } catch (error) {
+            console.error("Errore nel recupero degli slot", error);
+            setSlots([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="bg-white min-h-screen flex flex-col">
@@ -117,14 +111,15 @@ export const Landing = () => {
                 <div className="px-4 flex flex-col gap-6">
                     {/* Date Navigation */}
                     <div className="flex justify-around py-4 overflow-x-auto whitespace-nowrap gap-5 ml-[-16px] mr-[-16px] scrollbar-hidden px-4">
-                        {days.map((day) => (
+                        {days.map((day, index) => (
                             <div
-                                key={day.day}
-                                className={`flex flex-col items-center text-gray-500`}
+                                key={index}
+                                className={`flex flex-col items-center text-gray-500 cursor-pointer`}
+                                onClick={() => setSelectedOffset(index)}
                             >
                                 <span className="text-sm font-semibold">{day.label}</span>
                                 <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mt-1 ${day.selected ? "bg-accent text-white" : "border border-gray-300"}`}
+                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mt-1 ${selectedOffset === index ? "bg-accent text-white" : "border border-gray-300"}`}
                                 >
                                     {day.day}
                                 </div>
@@ -135,26 +130,30 @@ export const Landing = () => {
 
                     {/* Time Slots */}
                     <div className="grid grid-cols-4 gap-3">
-                        {slots.map((slot, idx) => (
-                            <Link to="/pitch-detail" key={idx}>
-                                <div
-                                    className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.disabled
-                                        ? "bg-gray-200 text-gray-400"
-                                        : "bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
-                                        }`}
-                                >
-                                    {slot.time}
-                                    {!slot.disabled && slot.count && (
-                                        <div className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                                            {slot.count}
-                                        </div>
-                                    )}
-                                </div>
-                            </Link>
-                        ))}
+                        {loading ? (
+                            <div className="col-span-4 text-center py-4">Caricamento...</div>
+                        ) : (
+                            slots.map((slot, idx) => (
+                                <Link to="/pitch-detail" key={idx}>
+                                    <div
+                                        className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0
+                                            ? "bg-gray-200 text-gray-400"
+                                            : "bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
+                                            }`}
+                                    >
+                                        {slot.time}
+                                        {slot.count > 0 && (
+                                            <div className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                                                {slot.count}
+                                            </div>
+                                        )}
+                                    </div>
+                                </Link>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
