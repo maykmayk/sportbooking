@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     children: [
       { path: "", element: <Landing /> },
       { path: "favorites", element: <Favorites /> },
-      { path: "pitch-detail", element: <PitchDetail /> },
+      { path: "pitch-detail/:daysOffset/:hour/:minute", element: <PitchDetail /> },
     ],
   },
 

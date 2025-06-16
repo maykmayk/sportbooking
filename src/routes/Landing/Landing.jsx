@@ -3,26 +3,29 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ApiManager from "../../api/ApiManager";
 
+const getNext14Days = () => {
+    const formatter = new Intl.DateTimeFormat('it-IT', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+    });
+
+    return Array.from({ length: 14 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() + i);
+        const parts = formatter.formatToParts(date);
+
+        return {
+            label: parts.find(p => p.type === 'weekday')?.value.toUpperCase(),
+            day: parts.find(p => p.type === 'day')?.value,
+            month: parts.find(p => p.type === 'month')?.value.charAt(0).toUpperCase() + parts.find(p => p.type === 'month')?.value.slice(1),
+        };
+    });
+};
+
 export const Landing = () => {
     const api = new ApiManager();
-
-    const days = [
-        { label: "GIO", day: "06", month: "Feb" },
-        { label: "VEN", day: "07", month: "Feb" },
-        { label: "SAB", day: "08", month: "Feb" },
-        { label: "DOM", day: "09", month: "Feb" },
-        { label: "LUN", day: "10", month: "Feb" },
-        { label: "MAR", day: "11", month: "Feb" },
-        { label: "MER", day: "12", month: "Feb" },
-        { label: "GIO", day: "13", month: "Feb" },
-        { label: "VEN", day: "14", month: "Feb" },
-        { label: "SAB", day: "15", month: "Feb" },
-        { label: "DOM", day: "16", month: "Feb" },
-        { label: "LUN", day: "17", month: "Feb" },
-        { label: "MAR", day: "18", month: "Feb" },
-        { label: "MER", day: "19", month: "Feb" },
-    ];
-
+    
     const images = [
         "https://plus.unsplash.com/premium_photo-1707862953516-9dd3032b69a8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFkZWx8ZW58MHx8MHx8fDA%3D",
         "https://images.unsplash.com/photo-1646649853703-7645147474ba?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGFkZWx8ZW58MHx8MHx8fDA%3D",
@@ -33,9 +36,14 @@ export const Landing = () => {
 
     const randomImage = images[Math.floor(Math.random() * images.length)];
 
+     const [days, setDays] = useState(getNext14Days()); // <- uso dati reali
     const [selectedOffset, setSelectedOffset] = useState(0); // 0 = oggi
     const [slots, setSlots] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        setDays(getNext14Days()); // Aggiorna se la data cambia
+    }, []);
 
     useEffect(() => {
         fetchSlots();
@@ -56,6 +64,8 @@ export const Landing = () => {
                     count: item.openedCount
                 };
             });
+
+            console.log(parsedSlots)
 
             setSlots(parsedSlots);
         } catch (error) {
@@ -110,23 +120,23 @@ export const Landing = () => {
 
                 <div className="px-4 flex flex-col gap-6">
                     {/* Date Navigation */}
-                    <div className="flex justify-around py-4 overflow-x-auto whitespace-nowrap gap-5 ml-[-16px] mr-[-16px] scrollbar-hidden px-4">
-                        {days.map((day, index) => (
-                            <div
-                                key={index}
-                                className={`flex flex-col items-center text-gray-500 cursor-pointer`}
-                                onClick={() => setSelectedOffset(index)}
-                            >
-                                <span className="text-sm font-semibold">{day.label}</span>
-                                <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mt-1 ${selectedOffset === index ? "bg-accent text-white" : "border border-gray-300"}`}
-                                >
-                                    {day.day}
-                                </div>
-                                <span className="text-xs">{day.month}</span>
-                            </div>
-                        ))}
+            <div className="flex justify-around py-4 overflow-x-auto whitespace-nowrap gap-5 ml-[-16px] mr-[-16px] scrollbar-hidden px-4">
+                {days.map((day, index) => (
+                    <div
+                        key={index}
+                        className={`flex flex-col items-center text-gray-500 cursor-pointer`}
+                        onClick={() => setSelectedOffset(index)}
+                    >
+                        <span className="text-sm font-semibold">{day.label}</span>
+                        <div
+                            className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mt-1 ${selectedOffset === index ? "bg-accent text-white" : "border border-gray-300"}`}
+                        >
+                            {day.day}
+                        </div>
+                        <span className="text-xs">{day.month}</span>
                     </div>
+                ))}
+            </div>
 
                     {/* Time Slots */}
                     <div className="grid grid-cols-4 gap-3">
@@ -134,7 +144,7 @@ export const Landing = () => {
                             <div className="col-span-4 text-center py-4">Caricamento...</div>
                         ) : (
                             slots.map((slot, idx) => (
-                                <Link to="/pitch-detail" key={idx}>
+                                <Link to={`/pitch-detail/${selectedOffset}/${slot.time.split(":")[0]}/${slot.time.split(":")[1]}`} key={idx}>
                                     <div
                                         className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0
                                             ? "bg-gray-200 text-gray-400"

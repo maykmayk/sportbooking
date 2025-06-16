@@ -9,8 +9,8 @@ export default class ApiManager {
 
     init() {
         // Imposta il baseURL di default
-        // this.axiosClient.defaults.baseURL = process.env.REACT_APP_BASE_URL;
-        this.axiosClient.defaults.baseURL = '/api';
+        this.axiosClient.defaults.baseURL = process.env.REACT_APP_BASE_URL;
+        // this.axiosClient.defaults.baseURL = '/api';
 
         this.axiosClient.defaults.headers.common = {
             'Content-Type': 'application/json',

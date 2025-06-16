@@ -45,6 +45,8 @@ export const PitchDetail = () => {
                 ),
             }));
 
+            console.log(parsed)
+
             setMatches(parsed);
         } catch (error) {
             console.error("Errore durante il recupero delle partite:", error);
@@ -95,6 +97,8 @@ export const PitchDetail = () => {
                 <div className="px-4 flex flex-col gap-6">
                     {loading ? (
                         <div className="text-center py-10">Caricamento partite...</div>
+                    ) : matches.length === 0 ? (
+                        <div className="text-center py-10 text-gray-400">Nessuna partita disponibile</div>
                     ) : (
                         matches.map((data, index) => (
                             <GameCard key={index} {...data} />
