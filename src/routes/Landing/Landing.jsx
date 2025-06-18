@@ -36,13 +36,15 @@ export const Landing = () => {
 
     const randomImage = images[Math.floor(Math.random() * images.length)];
 
-     const [days, setDays] = useState(getNext14Days()); // <- uso dati reali
-    const [selectedOffset, setSelectedOffset] = useState(0); // 0 = oggi
+    const [days, setDays] = useState(getNext14Days());
+    const [selectedOffset, setSelectedOffset] = useState(0); 
     const [slots, setSlots] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [tooltipMessage, setTooltipMessage] = useState("");
+    const [showTooltip, setShowTooltip] = useState(false);
 
     useEffect(() => {
-        setDays(getNext14Days()); // Aggiorna se la data cambia
+        setDays(getNext14Days());
     }, []);
 
     useEffect(() => {
@@ -65,12 +67,27 @@ export const Landing = () => {
                 };
             });
 
-            console.log(parsedSlots)
-
+            console.log(parsedSlots);
             setSlots(parsedSlots);
+
+            // Mostra il tooltip con i parsedSlots come stringa
+            setTooltipMessage(`Parsed Slots: ${JSON.stringify(parsedSlots, null, 2)}`);
+            setShowTooltip(true);
+
+            // Nascondi il tooltip dopo 5 secondi
+            setTimeout(() => {
+                setShowTooltip(false);
+            }, 5000);
+
         } catch (error) {
             console.error("Errore nel recupero degli slot", error);
             setSlots([]);
+            setTooltipMessage("Errore nel recupero dei dati");
+            setShowTooltip(true);
+
+            setTimeout(() => {
+                setShowTooltip(false);
+            }, 5000);
         } finally {
             setLoading(false);
         }
@@ -120,23 +137,23 @@ export const Landing = () => {
 
                 <div className="px-4 flex flex-col gap-6">
                     {/* Date Navigation */}
-            <div className="flex justify-around py-4 overflow-x-auto whitespace-nowrap gap-5 ml-[-16px] mr-[-16px] scrollbar-hidden px-4">
-                {days.map((day, index) => (
-                    <div
-                        key={index}
-                        className={`flex flex-col items-center text-gray-500 cursor-pointer`}
-                        onClick={() => setSelectedOffset(index)}
-                    >
-                        <span className="text-sm font-semibold">{day.label}</span>
-                        <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mt-1 ${selectedOffset === index ? "bg-accent text-white" : "border border-gray-300"}`}
-                        >
-                            {day.day}
-                        </div>
-                        <span className="text-xs">{day.month}</span>
+                    <div className="flex justify-around py-4 overflow-x-auto whitespace-nowrap gap-5 ml-[-16px] mr-[-16px] scrollbar-hidden px-4">
+                        {days.map((day, index) => (
+                            <div
+                                key={index}
+                                className={`flex flex-col items-center text-gray-500 cursor-pointer`}
+                                onClick={() => setSelectedOffset(index)}
+                            >
+                                <span className="text-sm font-semibold">{day.label}</span>
+                                <div
+                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mt-1 ${selectedOffset === index ? "bg-accent text-white" : "border border-gray-300"}`}
+                                >
+                                    {day.day}
+                                </div>
+                                <span className="text-xs">{day.month}</span>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
 
                     {/* Time Slots */}
                     <div className="grid grid-cols-4 gap-3">
@@ -144,24 +161,31 @@ export const Landing = () => {
                             <div className="col-span-4 text-center py-4">Caricamento...</div>
                         ) : (
                             slots.map((slot, idx) => (
-                                <Link to={`/pitch-detail/${selectedOffset}/${slot.time.split(":")[0]}/${slot.time.split(":")[1]}`} key={idx}>
+                                <div
+                                    key={idx}
+                                    className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0
+                                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                        : "bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
+                                        }`}
+                                >
+                                    {slot.time}
                                     <div
-                                        className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0
-                                            ? "bg-gray-200 text-gray-400"
-                                            : "bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
-                                            }`}
+                                        className={`absolute -top-2 -right-2 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${slot.count === 0 ? 'bg-gray-400' : 'bg-accent'}`}
                                     >
-                                        {slot.time}
-                                        {slot.count > 0 && (
-                                            <div className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                                                {slot.count}
-                                            </div>
-                                        )}
+                                        {slot.count}
                                     </div>
-                                </Link>
+                                </div>
                             ))
                         )}
                     </div>
+
+                    {/* Tooltip */}
+                    {showTooltip && (
+                        <div className="absolute max-h-[40vh] overflow-y-scroll top-16 right-4 left-4 bg-black text-white px-4 py-2 rounded-md shadow-lg">
+                            {tooltipMessage}
+                        </div>
+                    )}
+
                 </div>
             </div>
         </div>
