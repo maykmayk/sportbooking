@@ -2,6 +2,7 @@ import { Menu, Star } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ApiManager from "../../api/ApiManager";
+import BaseAppLayout from "../../layouts/BaseAppLayout";
 
 const getNext14Days = () => {
     const formatter = new Intl.DateTimeFormat('it-IT', {
@@ -94,6 +95,7 @@ export const Landing = () => {
     };
 
     return (
+        <BaseAppLayout>
         <div className="bg-white min-h-screen flex flex-col">
             {/* Header */}
             <div className="w-full h-48">
@@ -161,20 +163,22 @@ export const Landing = () => {
                             <div className="col-span-4 text-center py-4">Caricamento...</div>
                         ) : (
                             slots.map((slot, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0
-                                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                        : "bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
-                                        }`}
-                                >
-                                    {slot.time}
+                                <Link to={`/pitch-detail/${selectedOffset}/${slot.time.split(":")[0]}/${slot.time.split(":")[1]}`} key={idx}>
                                     <div
-                                        className={`absolute -top-2 -right-2 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${slot.count === 0 ? 'bg-gray-400' : 'bg-accent'}`}
+                                        key={idx}
+                                        className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0
+                                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                            : "bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
+                                            }`}
                                     >
-                                        {slot.count}
+                                        {slot.time}
+                                        <div
+                                            className={`absolute -top-2 -right-2 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${slot.count === 0 ? 'bg-gray-400' : 'bg-accent'}`}
+                                        >
+                                            {slot.count}
+                                        </div>
                                     </div>
-                                </div>
+                                </Link>
                             ))
                         )}
                     </div>
@@ -189,5 +193,6 @@ export const Landing = () => {
                 </div>
             </div>
         </div>
+        </BaseAppLayout>
     );
 };
