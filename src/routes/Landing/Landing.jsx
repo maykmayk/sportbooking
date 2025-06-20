@@ -187,11 +187,11 @@ export const Landing = () => {
                     </div>
 
                     {/* Tooltip */}
-                    {showTooltip && (
+                    {/* {showTooltip && (
                         <div className="absolute max-h-[40vh] overflow-y-scroll top-16 right-4 left-4 bg-black text-white px-4 py-2 rounded-md shadow-lg">
                             {tooltipMessage}
                         </div>
-                    )}
+                    )} */}
 
                 </div>
             </div>
