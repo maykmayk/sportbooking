@@ -30,22 +30,38 @@ export const PitchDetail = () => {
             const response = await api.get(`/PublicMatches/hour/${hour}/minute/${minute}/daysOffset/${daysOffset}`);
             const data = response.data;
 
+            console.log(data)
+
             // Adattiamo i dati per le GameCard
-            const parsed = data.map(match => ({
-                title: match.sportField,
-                matchType: "Partita Aperta", // puoi eventualmente cambiarlo se il backend un giorno lo fornisce
-                odds: "", // non abbiamo odds per ora
-                teamA: "Team A",
-                teamB: "Team B",
-                players: match.teams.flatMap(team =>
+            const parsed = data.map(match => {
+                const players = match.teams.flatMap(team =>
                     team.players.map(player => ({
                         name: player.name,
-                        value: "", // eventualmente qui puoi mettere il rating se il backend lo fornisce
+                        value: "",
                     }))
-                ),
-            }));
+                );
 
-            console.log(parsed)
+                const isJoinable = players.length < 4; // partite con meno di 4 giocatori
+
+                return {
+                    title: match.sportField || "",
+                    matchType: "Partita Aperta",
+                    odds: "",
+                    teamA: "Team A",
+                    teamB: "Team B",
+                    players,
+                    hasOpenSlots: isJoinable,
+                };
+            });
+
+            // Ordina: prima quelle joinabili
+            const ordered = parsed.sort((a, b) => {
+                if (a.hasOpenSlots && !b.hasOpenSlots) return -1;
+                if (!a.hasOpenSlots && b.hasOpenSlots) return 1;
+                return 0;
+            });
+
+            console.log(ordered)
 
             setMatches(parsed);
         } catch (error) {
@@ -58,7 +74,7 @@ export const PitchDetail = () => {
     return (
         <div className="bg-white min-h-screen flex flex-col">
             {/* Header */}
-            <div className="w-full h-48">
+            <div className="w-full h-48 overflow-hidden relative">
                 <img
                     src={randomImage}
                     alt="Padel background"
@@ -101,7 +117,9 @@ export const PitchDetail = () => {
                         <div className="text-center py-10 text-gray-400">Nessuna partita disponibile</div>
                     ) : (
                         matches.map((data, index) => (
-                            <GameCard key={index} {...data} />
+                            <div key={index} className={data.hasOpenSlots ? "" : "opacity-40"}>
+                                <GameCard {...data} />
+                            </div>
                         ))
                     )}
                 </div>

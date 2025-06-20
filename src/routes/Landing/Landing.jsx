@@ -64,9 +64,11 @@ export const Landing = () => {
                 const minute = item.localMinute.toString().padStart(2, "0");
                 return {
                     time: `${hour}:${minute}`,
-                    count: item.openedCount
+                    count: item.openedCount,
+                    total: item.totalCount 
                 };
             });
+
 
             console.log(parsedSlots);
             setSlots(parsedSlots);
@@ -98,7 +100,7 @@ export const Landing = () => {
         <BaseAppLayout>
         <div className="bg-white min-h-screen flex flex-col">
             {/* Header */}
-            <div className="w-full h-48">
+            <div className="w-full h-48 overflow-hidden relative">
                 <img
                     src={randomImage}
                     alt="Padel background"
@@ -173,9 +175,10 @@ export const Landing = () => {
                                     >
                                         {slot.time}
                                         <div
-                                            className={`absolute -top-2 -right-2 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${slot.count === 0 ? 'bg-gray-400' : 'bg-accent'}`}
+                                        // w-5 h-5
+                                            className={`absolute -top-2 -right-2 text-white text-xs px-1 flex items-center justify-center rounded-full ${slot.count === 0 ? 'bg-gray-400' : 'bg-accent'}`}
                                         >
-                                            {slot.count}
+                                            {slot.count} di {slot.total}
                                         </div>
                                     </div>
                                 </Link>
