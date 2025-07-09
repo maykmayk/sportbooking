@@ -60,14 +60,20 @@ export const Landing = () => {
             const data = response.data;
 
             const parsedSlots = data.map(item => {
-                const hour = item.localHour.toString().padStart(2, "0");
-                const minute = item.localMinute.toString().padStart(2, "0");
+                const localHour = item.localHour.toString().padStart(2, "0");
+                const localMinute = item.localMinute.toString().padStart(2, "0");
+                const serverHour = item.serverHour.toString().padStart(2, "0");
+                const serverMinute = item.serverMinute.toString().padStart(2, "0");
+
                 return {
-                    time: `${hour}:${minute}`,
+                    time: `${localHour}:${localMinute}`, // etichetta visiva
                     count: item.openedCount,
-                    total: item.totalCount 
+                    total: item.totalCount,
+                    serverHour,
+                    serverMinute
                 };
             });
+
 
 
             console.log(parsedSlots);
@@ -165,7 +171,7 @@ export const Landing = () => {
                             <div className="col-span-4 text-center py-4">Caricamento...</div>
                         ) : (
                             slots.map((slot, idx) => (
-                                <Link to={`/pitch-detail/${selectedOffset}/${slot.time.split(":")[0]}/${slot.time.split(":")[1]}`} key={idx}>
+                                <Link to={`/pitch-detail/${selectedOffset}/${slot.serverHour}/${slot.serverMinute}`} key={idx}>
                                     <div
                                         key={idx}
                                         className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0

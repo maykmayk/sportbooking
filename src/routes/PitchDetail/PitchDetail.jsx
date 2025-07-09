@@ -20,6 +20,17 @@ export const PitchDetail = () => {
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // Calcola la data locale da quella UTC passata nei parametri
+    const getLocalTimeLabel = () => {
+        const utcDate = new Date();
+        utcDate.setUTCHours(parseInt(hour), parseInt(minute), 0, 0);
+
+        const localHour = utcDate.getHours().toString().padStart(2, "0");
+        const localMinute = utcDate.getMinutes().toString().padStart(2, "0");
+
+        return `${localHour}:${localMinute}`;
+    };
+
     useEffect(() => {
         fetchMatches();
     }, [daysOffset, hour, minute]);
@@ -106,7 +117,7 @@ export const PitchDetail = () => {
                                 className="mx-auto mb-2 w-20"
                             />
                         </div>
-                        <h1 className="text-2xl font-bold text-center">Partite ore {hour}:{minute}</h1>
+                        <h1 className="text-2xl font-bold text-center">Partite ore {getLocalTimeLabel()}</h1>
                     </div>
                 </div>
 
