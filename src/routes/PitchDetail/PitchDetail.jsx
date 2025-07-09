@@ -1,24 +1,28 @@
 import { ArrowLeft, Menu } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState, useMemo } from "react";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import ApiManager from "../../api/ApiManager";
 import { GameCard } from "./GameCard";
 
 export const PitchDetail = () => {
     const { daysOffset, hour, minute } = useParams();
+    const [searchParams] = useSearchParams();
     const api = new ApiManager();
 
-    const images = [
+    const images = useMemo(() => [
         "https://images.unsplash.com/photo-1646649853703-7645147474ba?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGFkZWx8ZW58MHx8MHx8fDA%3D",
         "https://plus.unsplash.com/premium_photo-1707862954401-7f68ad9c3cb3?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHBhZGVsfGVufDB8fDB8fHww",
         "https://plus.unsplash.com/premium_photo-1707862953516-9dd3032b69a8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFkZWx8ZW58MHx8MHx8fDA%3D",
         "https://images.unsplash.com/photo-1646649853517-e2f75cde1908?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fHBhZGVsfGVufDB8fDB8fHww",
         "https://images.unsplash.com/photo-1673253408723-b5cfbfe00af6?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fHBhZGVsfGVufDB8fDB8fHww"
-    ];
+    ], []);
 
-    const randomImage = images[Math.floor(Math.random() * images.length)];
+    const randomImage = useMemo(() => images[Math.floor(Math.random() * images.length)], [images]);
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    // Recupera il selectedOffset dalla query string per il link di ritorno
+    const selectedOffset = searchParams.get('selectedOffset') || '0';
 
     // Calcola la data locale da quella UTC passata nei parametri
     const getLocalTimeLabel = () => {
@@ -97,7 +101,7 @@ export const PitchDetail = () => {
                 {/* Logo and Title */}
                 <div className="flex flex-col">
                     <div className="absolute top-4 left-4">
-                        <Link to="/">
+                        <Link to={`/?selectedOffset=${selectedOffset}`}>
                             <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
                                 <ArrowLeft size={20} />
                             </div>

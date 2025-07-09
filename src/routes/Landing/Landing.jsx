@@ -1,8 +1,9 @@
 import { Menu, Star } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import ApiManager from "../../api/ApiManager";
 import BaseAppLayout from "../../layouts/BaseAppLayout";
+import { useLocation } from "react-router-dom";
 
 const getNext14Days = () => {
     const formatter = new Intl.DateTimeFormat('it-IT', {
@@ -26,27 +27,32 @@ const getNext14Days = () => {
 
 export const Landing = () => {
     const api = new ApiManager();
+    const location = useLocation();
     
-    const images = [
+    const images = useMemo(() => [
         "https://plus.unsplash.com/premium_photo-1707862953516-9dd3032b69a8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFkZWx8ZW58MHx8MHx8fDA%3D",
         "https://images.unsplash.com/photo-1646649853703-7645147474ba?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGFkZWx8ZW58MHx8MHx8fDA%3D",
         "https://plus.unsplash.com/premium_photo-1707862954401-7f68ad9c3cb3?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHBhZGVsfGVufDB8fDB8fHww",
         "https://images.unsplash.com/photo-1646649853517-e2f75cde1908?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjJ8fHBhZGVsfGVufDB8fDB8fHww",
         "https://images.unsplash.com/photo-1673253408723-b5cfbfe00af6?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fHBhZGVsfGVufDB8fDB8fHww"
-    ];
+    ], []);
 
-    const randomImage = images[Math.floor(Math.random() * images.length)];
+    const randomImage = useMemo(() => images[Math.floor(Math.random() * images.length)], [images]);
 
-    const [days, setDays] = useState(getNext14Days());
-    const [selectedOffset, setSelectedOffset] = useState(0); 
+    const days = useMemo(() => getNext14Days(), []);
+    
+    // Recupera l'offset dalla query string o usa 0 come default
+    const getInitialOffset = () => {
+        const urlParams = new URLSearchParams(location.search);
+        const offsetParam = urlParams.get('selectedOffset');
+        return offsetParam ? parseInt(offsetParam, 10) : 0;
+    };
+
+    const [selectedOffset, setSelectedOffset] = useState(getInitialOffset);
     const [slots, setSlots] = useState([]);
     const [loading, setLoading] = useState(false);
     const [tooltipMessage, setTooltipMessage] = useState("");
     const [showTooltip, setShowTooltip] = useState(false);
-
-    useEffect(() => {
-        setDays(getNext14Days());
-    }, []);
 
     useEffect(() => {
         fetchSlots();
@@ -73,8 +79,6 @@ export const Landing = () => {
                     serverMinute
                 };
             });
-
-
 
             console.log(parsedSlots);
             setSlots(parsedSlots);
@@ -130,7 +134,7 @@ export const Landing = () => {
                         </div>
                     </div>
 
-                    <div className="px-4  bg-white mt-[-40px] rounded-t-3xl p-6 relative">
+                    <div className="px-4 bg-white mt-[-40px] rounded-t-3xl p-6 relative">
                         <div className="absolute left-1/2 transform -translate-x-1/2 -top-10 w-fit pt-4 px-8 bg-white rounded-t-lg">
                             <img
                                 src="https://www.countrysportvillage.it/wp-content/uploads/2023/01/COUNTRY-LOGO-2023-Nero.png"
@@ -151,7 +155,7 @@ export const Landing = () => {
                         {days.map((day, index) => (
                             <div
                                 key={index}
-                                className={`flex flex-col items-center text-gray-500 cursor-pointer`}
+                                className="flex flex-col items-center text-gray-500 cursor-pointer"
                                 onClick={() => setSelectedOffset(index)}
                             >
                                 <span className="text-sm font-semibold">{day.label}</span>
@@ -171,9 +175,11 @@ export const Landing = () => {
                             <div className="col-span-4 text-center py-4">Caricamento...</div>
                         ) : (
                             slots.map((slot, idx) => (
-                                <Link to={`/pitch-detail/${selectedOffset}/${slot.serverHour}/${slot.serverMinute}`} key={idx}>
+                                <Link 
+                                    to={`/pitch-detail/${selectedOffset}/${slot.serverHour}/${slot.serverMinute}?offset=${selectedOffset}&selectedOffset=${selectedOffset}`} 
+                                    key={idx}
+                                >
                                     <div
-                                        key={idx}
                                         className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0
                                             ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                                             : "bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
