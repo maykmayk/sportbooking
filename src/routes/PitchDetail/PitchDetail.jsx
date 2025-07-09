@@ -66,6 +66,7 @@ export const PitchDetail = () => {
                     teamB: "Team B",
                     players,
                     hasOpenSlots: isJoinable,
+                    addMatchLink: match.addToMatchLink || "",
                 };
             });
 

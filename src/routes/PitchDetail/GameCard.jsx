@@ -1,7 +1,7 @@
 import { SignalHigh } from "lucide-react";
 
-export function GameCard({ title, matchType, odds, teamA, teamB, players }) {
-  console.log (title, matchType, odds, teamA, teamB, players )
+export function GameCard({ title, matchType, odds, teamA, teamB, players, addMatchLink }) {
+  console.log (title, matchType, odds, teamA, teamB, players, addMatchLink )
   return (
     <div className="flex flex-col gap-5 bg-gray-100 rounded-lg p-4">
       <div className="flex flex-col">
@@ -49,8 +49,9 @@ export function GameCard({ title, matchType, odds, teamA, teamB, players }) {
                       <button
                         type="button"
                         className="text-4xl text-accent"
-                        onClick={() => console.log("Add player clicked")}
-                      >
+                        onClick={() => window.open(addMatchLink, "_blank")}
+                        title="Aggiungi giocatore">
+                        {/* go to addMatchLink in a new page */}
                         +
                       </button>
                     ) : (
