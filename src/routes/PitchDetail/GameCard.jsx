@@ -3,7 +3,7 @@ import { SignalHigh } from "lucide-react";
 export function GameCard({ title, matchType, odds, teamA, teamB, players, addMatchLink }) {
   console.log(title, matchType, odds, teamA, teamB, players, addMatchLink)
   return (
-    <div className="flex flex-col gap-5 bg-gray-100 rounded-lg p-4">
+    <div className="flex flex-col gap-5 bg-gray-100 rounded-2xl p-4">
       <div className="flex flex-col">
         <div className="font-bold text-lg">{title}</div>
         <div className="w-full flex justify-between text-gray-500">

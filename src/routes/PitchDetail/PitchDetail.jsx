@@ -3,6 +3,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import ApiManager from "../../api/ApiManager";
 import { GameCard } from "./GameCard";
+import { FiltersPanel } from "./FiltersPanel";
 
 export const PitchDetail = () => {
     const { daysOffset, hour, minute } = useParams();
@@ -127,6 +128,7 @@ export const PitchDetail = () => {
                 </div>
 
                 <div className="px-4 flex flex-col gap-6">
+                    <FiltersPanel />
                     {loading ? (
                         <div className="text-center py-10">Caricamento partite...</div>
                     ) : matches.length === 0 ? (
