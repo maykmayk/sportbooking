@@ -1,14 +1,16 @@
-import { ArrowLeft, Menu } from "lucide-react";
+import { ArrowLeft, Filter, Menu } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import ApiManager from "../../api/ApiManager";
 import { GameCard } from "./GameCard";
 import { FiltersPanel } from "./FiltersPanel";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "../../components/ui/drawer";
 
 export const PitchDetail = () => {
     const { daysOffset, hour, minute } = useParams();
     const [searchParams] = useSearchParams();
     const api = new ApiManager();
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     const images = useMemo(() => [
         "https://images.unsplash.com/photo-1646649853703-7645147474ba?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGFkZWx8ZW58MHx8MHx8fDA%3D",
@@ -109,11 +111,32 @@ export const PitchDetail = () => {
                             </div>
                         </Link>
                     </div>
-                    <div className="absolute top-4 right-4">
-                        <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
-                            <Menu size={20} />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                            {/* <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
+                                <Filter size={20} />
+                            </div> */}
+                            <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+                                <DrawerTrigger asChild>
+                                    <div
+                                        onClick={() => setDrawerOpen(true)}
+                                        className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full cursor-pointer"
+                                    >
+                                        <Filter size={20} />
+                                    </div>
+                                </DrawerTrigger>
+                                <DrawerContent>
+                                    <DrawerHeader>
+                                        <DrawerTitle>Filtri disponibili</DrawerTitle>
+                                    </DrawerHeader>
+                                    <div className="p-2">
+                                        <FiltersPanel onClose={() => setDrawerOpen(false)} />
+                                    </div>
+                                </DrawerContent>
+                            </Drawer>
+                            <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
+                                <Menu size={20} />
+                            </div>
                         </div>
-                    </div>
 
                     <div className="px-4 bg-white mt-[-40px] rounded-t-3xl p-6 relative">
                         <div className="absolute left-1/2 transform -translate-x-1/2 -top-10 w-fit pt-4 px-8 bg-white rounded-t-lg">
@@ -128,7 +151,7 @@ export const PitchDetail = () => {
                 </div>
 
                 <div className="px-4 flex flex-col gap-6">
-                    <FiltersPanel />
+                    
                     {loading ? (
                         <div className="text-center py-10">Caricamento partite...</div>
                     ) : matches.length === 0 ? (

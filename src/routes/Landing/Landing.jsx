@@ -1,9 +1,11 @@
-import { Menu, Star } from "lucide-react";
+import { Filter, Menu, Star } from "lucide-react";
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import ApiManager from "../../api/ApiManager";
 import BaseAppLayout from "../../layouts/BaseAppLayout";
 import { useLocation } from "react-router-dom";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "../../components/ui/drawer";
+import { FiltersPanel } from "../PitchDetail/FiltersPanel";
 
 const getNext14Days = () => {
     const formatter = new Intl.DateTimeFormat('it-IT', {
@@ -38,8 +40,8 @@ export const Landing = () => {
     ], []);
 
     const randomImage = useMemo(() => images[Math.floor(Math.random() * images.length)], [images]);
-
     const days = useMemo(() => getNext14Days(), []);
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
     // Recupera l'offset dalla query string o usa 0 come default
     const getInitialOffset = () => {
@@ -128,7 +130,28 @@ export const Landing = () => {
                                 </div>
                             </Link>
                         </div>
-                        <div className="absolute top-4 right-4">
+                        <div className="absolute top-4 right-4 flex gap-2">
+                            {/* <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
+                                <Filter size={20} />
+                            </div> */}
+                            <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+                                <DrawerTrigger asChild>
+                                    <div
+                                        onClick={() => setDrawerOpen(true)}
+                                        className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full cursor-pointer"
+                                    >
+                                        <Filter size={20} />
+                                    </div>
+                                </DrawerTrigger>
+                                <DrawerContent>
+                                    <DrawerHeader>
+                                        <DrawerTitle>Filtri disponibili</DrawerTitle>
+                                    </DrawerHeader>
+                                    <div className="p-2">
+                                        <FiltersPanel onClose={() => setDrawerOpen(false)} />
+                                    </div>
+                                </DrawerContent>
+                            </Drawer>
                             <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
                                 <Menu size={20} />
                             </div>

@@ -30,4 +30,7 @@ module.exports = {
       },
     },
   },
+  plugins: [
+    require("tailwindcss-animate") // 👈 necessario per shadcn/ui
+  ],
 };
