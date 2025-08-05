@@ -28,7 +28,7 @@ const getNext14Days = () => {
 export const Landing = () => {
     const api = new ApiManager();
     const location = useLocation();
-    
+
     const images = useMemo(() => [
         "https://plus.unsplash.com/premium_photo-1707862953516-9dd3032b69a8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGFkZWx8ZW58MHx8MHx8fDA%3D",
         "https://images.unsplash.com/photo-1646649853703-7645147474ba?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cGFkZWx8ZW58MHx8MHx8fDA%3D",
@@ -40,7 +40,7 @@ export const Landing = () => {
     const randomImage = useMemo(() => images[Math.floor(Math.random() * images.length)], [images]);
 
     const days = useMemo(() => getNext14Days(), []);
-    
+
     // Recupera l'offset dalla query string o usa 0 come default
     const getInitialOffset = () => {
         const urlParams = new URLSearchParams(location.search);
@@ -108,106 +108,112 @@ export const Landing = () => {
 
     return (
         <BaseAppLayout>
-        <div className="bg-white min-h-screen flex flex-col">
-            {/* Header */}
-            <div className="w-full h-48 overflow-hidden relative">
-                <img
-                    src={randomImage}
-                    alt="Padel background"
-                    className="object-contain"
-                />
-            </div>
-
-            <div className="flex flex-col bg-white pb-4">
-                {/* Logo and Title */}
-                <div className="flex flex-col">
-                    <div className="absolute top-4 left-4">
-                        <Link to="/favorites">
-                            <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
-                                <Star size={20} />
-                            </div>
-                        </Link>
-                    </div>
-                    <div className="absolute top-4 right-4">
-                        <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
-                            <Menu size={20} />
-                        </div>
-                    </div>
-
-                    <div className="px-4 bg-white mt-[-40px] rounded-t-3xl p-6 relative">
-                        <div className="absolute left-1/2 transform -translate-x-1/2 -top-10 w-fit pt-4 px-8 bg-white rounded-t-lg">
-                            <img
-                                src="https://www.countrysportvillage.it/wp-content/uploads/2023/01/COUNTRY-LOGO-2023-Nero.png"
-                                alt="Country Sport Village"
-                                className="mx-auto mb-2 w-20"
-                            />
-                        </div>
-                        <h1 className="text-2xl font-bold text-center">Country Sport Village</h1>
-                        <p className="text-center text-gray-400 text-sm">
-                            Via Guglielmo Pepe, 68, 20037 Paderno Dugnano MI
-                        </p>
-                    </div>
+            <div className="bg-white min-h-screen flex flex-col">
+                {/* Header */}
+                <div className="w-full h-48 overflow-hidden relative">
+                    <img
+                        src={randomImage}
+                        alt="Padel background"
+                        className="object-contain"
+                    />
                 </div>
 
-                <div className="px-4 flex flex-col gap-6">
-                    {/* Date Navigation */}
-                    <div className="flex justify-around py-4 overflow-x-auto whitespace-nowrap gap-5 ml-[-16px] mr-[-16px] scrollbar-hidden px-4">
-                        {days.map((day, index) => (
-                            <div
-                                key={index}
-                                className="flex flex-col items-center text-gray-500 cursor-pointer"
-                                onClick={() => setSelectedOffset(index)}
-                            >
-                                <span className="text-sm font-semibold">{day.label}</span>
-                                <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mt-1 ${selectedOffset === index ? "bg-accent text-white" : "border border-gray-300"}`}
-                                >
-                                    {day.day}
+                <div className="flex flex-col bg-white pb-4">
+                    {/* Logo and Title */}
+                    <div className="flex flex-col">
+                        <div className="absolute top-4 left-4">
+                            <Link to="/favorites">
+                                <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
+                                    <Star size={20} />
                                 </div>
-                                <span className="text-xs">{day.month}</span>
+                            </Link>
+                        </div>
+                        <div className="absolute top-4 right-4">
+                            <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
+                                <Menu size={20} />
                             </div>
-                        ))}
+                        </div>
+
+                        <div className="px-4 bg-white mt-[-40px] rounded-t-3xl p-6 relative">
+                            <div className="absolute left-1/2 transform -translate-x-1/2 -top-10 w-fit pt-4 px-8 bg-white rounded-t-lg">
+                                <img
+                                    src="https://www.countrysportvillage.it/wp-content/uploads/2023/01/COUNTRY-LOGO-2023-Nero.png"
+                                    alt="Country Sport Village"
+                                    className="mx-auto mb-2 w-20"
+                                />
+                            </div>
+                            <h1 className="text-2xl font-bold text-center">Country Sport Village</h1>
+                            <p className="text-center text-gray-400 text-sm">
+                                Via Guglielmo Pepe, 68, 20037 Paderno Dugnano MI
+                            </p>
+                        </div>
                     </div>
 
-                    {/* Time Slots */}
-                    <div className="grid grid-cols-4 gap-3">
-                        {loading ? (
-                            <div className="col-span-4 text-center py-4">Caricamento...</div>
-                        ) : (
-                            slots.map((slot, idx) => (
-                                <Link 
-                                    to={`/pitch-detail/${selectedOffset}/${slot.serverHour}/${slot.serverMinute}?offset=${selectedOffset}&selectedOffset=${selectedOffset}`} 
-                                    key={idx}
+                    <div className="px-4 flex flex-col gap-6">
+                        {/* Date Navigation */}
+                        <div className="flex justify-around py-4 overflow-x-auto whitespace-nowrap gap-5 ml-[-16px] mr-[-16px] scrollbar-hidden px-4">
+                            {days.map((day, index) => (
+                                <div
+                                    key={index}
+                                    className="flex flex-col items-center text-gray-500 cursor-pointer"
+                                    onClick={() => setSelectedOffset(index)}
                                 >
+                                    <span className="text-sm font-semibold">{day.label}</span>
                                     <div
-                                        className={`relative rounded-lg text-center py-3 font-bold text-sm ${slot.count === 0
-                                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                                            : "bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
-                                            }`}
+                                        className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold mt-1 ${selectedOffset === index ? "bg-accent text-white" : "border border-gray-300"}`}
                                     >
-                                        {slot.time}
-                                        <div
-                                        // w-5 h-5
-                                            className={`absolute -top-2 -right-2 text-white text-xs px-1 flex items-center justify-center rounded-full ${slot.count === 0 ? 'bg-gray-400' : 'bg-accent'}`}
-                                        >
-                                            {slot.count} di {slot.total}
-                                        </div>
+                                        {day.day}
                                     </div>
-                                </Link>
-                            ))
-                        )}
-                    </div>
+                                    <span className="text-xs">{day.month}</span>
+                                </div>
+                            ))}
+                        </div>
 
-                    {/* Tooltip */}
-                    {/* {showTooltip && (
+                        {/* Time Slots */}
+                        <div className="grid grid-cols-4 gap-3">
+                            {loading ? (
+                                <div className="col-span-4 text-center py-4">Caricamento...</div>
+                            ) : (
+                                slots.map((slot, idx) => (
+                                    <div key={idx}>
+                                        {slot.count === 0 ? (
+                                            <div
+                                                className="relative rounded-lg text-center py-3 font-bold text-sm bg-gray-200 text-gray-400 cursor-not-allowed"
+                                            >
+                                                {slot.time}
+                                            </div>
+                                        ) : (
+                                            <Link
+                                                to={`/pitch-detail/${selectedOffset}/${slot.serverHour}/${slot.serverMinute}?offset=${selectedOffset}&selectedOffset=${selectedOffset}`}
+                                            >
+                                                <div
+                                                    className="relative rounded-lg text-center py-3 font-bold text-sm bg-white text-black border border-gray-300 hover:bg-accent hover:text-white cursor-pointer hover:border-accent"
+                                                >
+                                                    {slot.time}
+                                                    <div
+                                                        className="absolute -top-2 -right-2 text-white w-5 h-5 text-xs px-1 flex items-center justify-center rounded-full bg-accent"
+                                                    >
+                                                        {slot.count}
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        )}
+                                    </div>
+
+                                ))
+                            )}
+                        </div>
+
+                        {/* Tooltip */}
+                        {/* {showTooltip && (
                         <div className="absolute max-h-[40vh] overflow-y-scroll top-16 right-4 left-4 bg-black text-white px-4 py-2 rounded-md shadow-lg">
                             {tooltipMessage}
                         </div>
                     )} */}
 
+                    </div>
                 </div>
             </div>
-        </div>
         </BaseAppLayout>
     );
 };

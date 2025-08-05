@@ -1,7 +1,7 @@
 import { SignalHigh } from "lucide-react";
 
 export function GameCard({ title, matchType, odds, teamA, teamB, players, addMatchLink }) {
-  console.log (title, matchType, odds, teamA, teamB, players, addMatchLink )
+  console.log(title, matchType, odds, teamA, teamB, players, addMatchLink)
   return (
     <div className="flex flex-col gap-5 bg-gray-100 rounded-lg p-4">
       <div className="flex flex-col">
@@ -35,15 +35,13 @@ export function GameCard({ title, matchType, odds, teamA, teamB, players, addMat
                 return (
                   <div
                     key={idx}
-                    className={`relative aspect-square flex flex-col justify-center items-center text-center border-black ${
-                      idx < 2 ? "border-b-2" : ""
-                    } ${idx % 2 === 0 ? "border-r-2" : ""} ${
-                      isEmpty
+                    className={`relative aspect-square flex flex-col justify-center items-center text-center border-black ${idx < 2 ? "border-b-2" : ""
+                      } ${idx % 2 === 0 ? "border-r-2" : ""} ${isEmpty
                         ? "bg-white"
                         : player.highlight
-                        ? "bg-accent text-white"
-                        : "bg-white"
-                    }`}
+                          ? "bg-accent text-white"
+                          : "bg-white"
+                      }`}
                   >
                     {isEmpty ? (
                       <button
@@ -56,8 +54,8 @@ export function GameCard({ title, matchType, odds, teamA, teamB, players, addMat
                       </button>
                     ) : (
                       <>
-                        <div className="text-sm font-medium">{player.name}</div>
-                        <div className="text-xs text-gray-500">{player.value}</div>
+                        <div className="text-sm font-medium max-w-[80%] truncate">{player.name}</div>
+                        <div className="text-xs text-gray-500  max-w-[80%] truncate">{player.value}</div>
                       </>
                     )}
                   </div>
