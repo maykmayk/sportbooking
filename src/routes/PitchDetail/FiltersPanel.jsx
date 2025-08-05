@@ -3,8 +3,31 @@ import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 
 export function FiltersPanel({ onClose }) {
-  const [levelRange, setLevelRange] = useState([2.5, 5.5]);
-  const [selectedTypes, setSelectedTypes] = useState([]);
+    const [levelRange, setLevelRange] = useState(() => {
+    const saved = localStorage.getItem("filters");
+    if (saved) {
+        try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed.levelRange)) return parsed.levelRange;
+        } catch (e) {
+        console.error("Errore nel parsing dei filtri salvati (levelRange):", e);
+        }
+    }
+    return [2.5, 5.5];
+    });
+
+    const [selectedTypes, setSelectedTypes] = useState(() => {
+    const saved = localStorage.getItem("filters");
+    if (saved) {
+        try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed.selectedTypes)) return parsed.selectedTypes;
+        } catch (e) {
+        console.error("Errore nel parsing dei filtri salvati (selectedTypes):", e);
+        }
+    }
+    return [];
+    });
 
   const types = ["Competitiva", "Amichevole", "Femminile", "Maschile", "Mista", "Aperta"];
 
@@ -23,13 +46,14 @@ export function FiltersPanel({ onClose }) {
   }, []);
 
   // Salva i filtri ogni volta che cambiano
-  useEffect(() => {
-    const filters = {
-      levelRange,
-      selectedTypes,
-    };
-    localStorage.setItem("filters", JSON.stringify(filters));
-  }, [levelRange, selectedTypes]);
+    useEffect(() => {
+        const filters = {
+            levelRange,
+            selectedTypes,
+        };
+        console.log("[DEBUG] Salvataggio filtri:", filters);
+        localStorage.setItem("filters", JSON.stringify(filters));
+    }, [levelRange, selectedTypes]);
 
   const handleCheckboxChange = (type) => {
     setSelectedTypes((prev) =>
@@ -38,10 +62,34 @@ export function FiltersPanel({ onClose }) {
   };
 
   const handleReset = () => {
-    setLevelRange([0, 7]);
+    setLevelRange([2.5, 5.5]);
     setSelectedTypes([]);
     localStorage.removeItem("filters");
   };
+
+  const isDisabled = (type) => {
+    const has = (t) => selectedTypes.includes(t);
+
+    // Regole di esclusione
+    switch (type) {
+        case "Competitiva":
+        return has("Amichevole");
+        case "Amichevole":
+        return has("Competitiva");
+
+        case "Maschile":
+        case "Femminile":
+        case "Mista":
+        return has("Aperta") || (has("Maschile") || has("Femminile") || has("Mista")) && !has(type);
+
+        case "Aperta":
+        return has("Maschile") || has("Femminile") || has("Mista");
+
+        default:
+        return false;
+    }
+    };
+
 
   return (
     <div className="flex flex-col gap-6">
@@ -57,33 +105,35 @@ export function FiltersPanel({ onClose }) {
         </div>
 
         <Slider
-          range
-          min={0}
-          max={7}
-          step={0.1}
-          value={levelRange}
-          onChange={setLevelRange}
-          trackStyle={[{ backgroundColor: '#a3a9e2', height: 6 }]}
-          handleStyle={[
-            {
-              borderColor: '#a3a9e2',
-              backgroundColor: 'white',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-              width: 20,
-              height: 20,
-              marginTop: -7,
-            },
-            {
-              borderColor: '#a3a9e2',
-              backgroundColor: 'white',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-              width: 20,
-              height: 20,
-              marginTop: -7,
-            },
-          ]}
-          railStyle={{ backgroundColor: '#e5e7eb', height: 6 }}
-        />
+            range
+            min={0}
+            max={7}
+            step={0.1}
+            value={levelRange}
+            onChange={(val) => setLevelRange(val)}          // Aggiorna live
+            onChangeComplete={(val) => setLevelRange(val)}     // Salva al rilascio
+            trackStyle={[{ backgroundColor: '#a3a9e2', height: 6 }]}
+            handleStyle={[
+                {
+                borderColor: '#a3a9e2',
+                backgroundColor: 'white',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                width: 20,
+                height: 20,
+                marginTop: -7,
+                },
+                {
+                borderColor: '#a3a9e2',
+                backgroundColor: 'white',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                width: 20,
+                height: 20,
+                marginTop: -7,
+                },
+            ]}
+            railStyle={{ backgroundColor: '#e5e7eb', height: 6 }}
+            />
+
 
         <div className="flex justify-between mt-2 text-xs text-gray-400">
           <span>Principiante (0)</span>
@@ -97,45 +147,48 @@ export function FiltersPanel({ onClose }) {
         <div className="grid grid-cols-2 gap-3">
           {types.map((type) => (
             <label
-              key={type}
-              className={`relative flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-200
-                ${
-                  selectedTypes.includes(type)
+                key={type}
+                className={`relative flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-200
+                    ${selectedTypes.includes(type)
                     ? 'border-accent bg-accent/5 text-accent'
-                    : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'
-                }`}
-            >
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={selectedTypes.includes(type)}
-                  onChange={() => handleCheckboxChange(type)}
-                  className="sr-only"
-                />
-                <div
-                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200
-                    ${
-                      selectedTypes.includes(type)
-                        ? 'border-accent bg-accent'
-                        : 'border-gray-300 bg-white'
-                    }`}
+                    : isDisabled(type)
+                        ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'}
+                `}
                 >
-                  {selectedTypes.includes(type) && (
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
+                <div className="relative">
+                    <input
+                    type="checkbox"
+                    checked={selectedTypes.includes(type)}
+                    disabled={isDisabled(type)}
+                    onChange={() => handleCheckboxChange(type)}
+                    className="sr-only"
+                    />
+                    <div
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200
+                        ${selectedTypes.includes(type)
+                        ? 'border-accent bg-accent'
+                        : isDisabled(type)
+                            ? 'border-gray-300 bg-gray-200'
+                            : 'border-gray-300 bg-white'}
+                    `}
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
+                    {selectedTypes.includes(type) && (
+                        <svg
+                        className="w-3 h-3 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        >
+                        <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                        />
+                        </svg>
+                    )}
+                    </div>
                 </div>
-              </div>
-              <span className="text-sm font-medium">{type}</span>
+                <span className="text-sm font-medium">{type}</span>
             </label>
           ))}
         </div>

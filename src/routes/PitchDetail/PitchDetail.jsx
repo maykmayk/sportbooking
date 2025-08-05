@@ -112,25 +112,22 @@ export const PitchDetail = () => {
                         </Link>
                     </div>
                     <div className="absolute top-4 right-4 flex gap-2">
-                            {/* <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
-                                <Filter size={20} />
-                            </div> */}
                             <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
                                 <DrawerTrigger asChild>
-                                    <div
-                                        onClick={() => setDrawerOpen(true)}
-                                        className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full cursor-pointer"
-                                    >
-                                        <Filter size={20} />
-                                    </div>
+                                <div
+                                    onClick={() => setDrawerOpen(true)}
+                                    className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full cursor-pointer"
+                                >
+                                    <Filter size={20} />
+                                </div>
                                 </DrawerTrigger>
                                 <DrawerContent>
-                                    <DrawerHeader>
-                                        <DrawerTitle>Filtri disponibili</DrawerTitle>
-                                    </DrawerHeader>
-                                    <div className="p-2">
-                                        <FiltersPanel onClose={() => setDrawerOpen(false)} />
-                                    </div>
+                                <DrawerHeader>
+                                    <DrawerTitle>Filtri disponibili</DrawerTitle>
+                                </DrawerHeader>
+                                <div className="p-2">
+                                    <FiltersPanel key={drawerOpen ? "open" : "closed"} onClose={() => setDrawerOpen(false)} />
+                                </div>
                                 </DrawerContent>
                             </Drawer>
                             <div className="aspect-square bg-white h-12 w-12 flex items-center justify-center rounded-full ">
