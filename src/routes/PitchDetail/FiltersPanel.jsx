@@ -70,26 +70,18 @@ export function FiltersPanel({ onClose }) {
   const isDisabled = (type) => {
     const has = (t) => selectedTypes.includes(t);
 
-    // Regole di esclusione
-    switch (type) {
-        case "Competitiva":
-        return has("Amichevole");
-        case "Amichevole":
-        return has("Competitiva");
+    // Regole per coppie esclusive
+    if (type === "Competitiva") return has("Amichevole");
+    if (type === "Amichevole") return has("Competitiva");
 
-        case "Maschile":
-        case "Femminile":
-        case "Mista":
-        return has("Aperta") || (has("Maschile") || has("Femminile") || has("Mista")) && !has(type);
+    if (type === "Maschile") return has("Femminile");
+    if (type === "Femminile") return has("Maschile");
 
-        case "Aperta":
-        return has("Maschile") || has("Femminile") || has("Mista");
+    if (type === "Mista") return has("Aperta");
+    if (type === "Aperta") return has("Mista");
 
-        default:
-        return false;
-    }
+    return false;
     };
-
 
   return (
     <div className="flex flex-col gap-6">
