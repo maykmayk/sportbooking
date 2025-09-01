@@ -1,87 +1,54 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
+import ApiManager from "../../api/ApiManager";
+import { useFilters } from "../../context/FiltersContext";
 
 export function FiltersPanel({ onClose }) {
-    const [levelRange, setLevelRange] = useState(() => {
-    const saved = localStorage.getItem("filters");
-    if (saved) {
-        try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed.levelRange)) return parsed.levelRange;
-        } catch (e) {
-        console.error("Errore nel parsing dei filtri salvati (levelRange):", e);
-        }
-    }
-    return [2.5, 5.5];
-    });
+  const api = useMemo(() => new ApiManager(), []);
+  const [config, setConfig] = useState(null); // { base, minLevel, maxLevel, filters[] }
+  const { levelRange, setLevelRange, selectedValues, setSelectedValues, resetFilters, filter, applyFilters } = useFilters();
 
-    const [selectedTypes, setSelectedTypes] = useState(() => {
-    const saved = localStorage.getItem("filters");
-    if (saved) {
-        try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed.selectedTypes)) return parsed.selectedTypes;
-        } catch (e) {
-        console.error("Errore nel parsing dei filtri salvati (selectedTypes):", e);
-        }
-    }
-    return [];
-    });
-
-  const types = ["Competitiva", "Amichevole", "Femminile", "Maschile", "Mista", "Aperta"];
-
-  // Carica filtri da localStorage
+  // carica FilterConfig UNA SOLA VOLTA (no dipendenza da levelRange!)
   useEffect(() => {
-    const saved = localStorage.getItem("filters");
-    if (saved) {
+    const load = async () => {
       try {
-        const parsed = JSON.parse(saved);
-        if (parsed.levelRange) setLevelRange(parsed.levelRange);
-        if (parsed.selectedTypes) setSelectedTypes(parsed.selectedTypes);
+        const res = await api.get("/FilterConfig");
+        const cfg = res.data;
+        setConfig(cfg);
+
+        // se il range è ancora "default", allinealo ai limiti del club
+        if (Array.isArray(levelRange) && levelRange[0] === 0 && levelRange[1] === 7) {
+          setLevelRange([cfg.minLevel ?? 0, cfg.maxLevel ?? 7]);
+        }
       } catch (e) {
-        console.error("Errore nel parsing dei filtri salvati:", e);
+        console.error("Errore caricando FilterConfig:", e);
       }
-    }
-  }, []);
+    };
+    load();
+  }, [api, setLevelRange]); // <— niente levelRange nelle deps
 
-  // Salva i filtri ogni volta che cambiano
-    useEffect(() => {
-        const filters = {
-            levelRange,
-            selectedTypes,
-        };
-        console.log("[DEBUG] Salvataggio filtri:", filters);
-        localStorage.setItem("filters", JSON.stringify(filters));
-    }, [levelRange, selectedTypes]);
-
-  const handleCheckboxChange = (type) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+  const handleCheckboxChange = (value) => {
+    setSelectedValues((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
 
   const handleReset = () => {
-    setLevelRange([2.5, 5.5]);
-    setSelectedTypes([]);
-    localStorage.removeItem("filters");
+    resetFilters();
+    if (config) setLevelRange([config.minLevel ?? 0, config.maxLevel ?? 7]);
   };
 
-  const isDisabled = (type) => {
-    const has = (t) => selectedTypes.includes(t);
+  if (!config) {
+    return (
+      <div className="flex items-center justify-center py-8 text-gray-500">
+        Caricamento filtri...
+      </div>
+    );
+  }
 
-    // Regole per coppie esclusive
-    if (type === "Competitiva") return has("Amichevole");
-    if (type === "Amichevole") return has("Competitiva");
-
-    if (type === "Maschile") return has("Femminile");
-    if (type === "Femminile") return has("Maschile");
-
-    if (type === "Mista") return has("Aperta");
-    if (type === "Aperta") return has("Mista");
-
-    return false;
-    };
+  const sliderMin = config.minLevel ?? 0;
+  const sliderMax = config.maxLevel ?? 7;
 
   return (
     <div className="flex flex-col gap-6">
@@ -97,93 +64,71 @@ export function FiltersPanel({ onClose }) {
         </div>
 
         <Slider
-            range
-            min={0}
-            max={7}
-            step={0.1}
-            value={levelRange}
-            onChange={(val) => setLevelRange(val)}          // Aggiorna live
-            onChangeComplete={(val) => setLevelRange(val)}     // Salva al rilascio
-            trackStyle={[{ backgroundColor: '#a3a9e2', height: 6 }]}
-            handleStyle={[
-                {
-                borderColor: '#a3a9e2',
-                backgroundColor: 'white',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                width: 20,
-                height: 20,
-                marginTop: -7,
-                },
-                {
-                borderColor: '#a3a9e2',
-                backgroundColor: 'white',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                width: 20,
-                height: 20,
-                marginTop: -7,
-                },
-            ]}
-            railStyle={{ backgroundColor: '#e5e7eb', height: 6 }}
-            />
-
+          range
+          min={sliderMin}
+          max={sliderMax}
+          step={0.1}
+          value={levelRange}
+          onChange={(val) => setLevelRange(val)}
+          onChangeComplete={(val) => setLevelRange(val)}
+          trackStyle={[{ backgroundColor: '#a3a9e2', height: 6 }]}
+          handleStyle={[
+            { borderColor: '#a3a9e2', backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', width: 20, height: 20, marginTop: -7 },
+            { borderColor: '#a3a9e2', backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', width: 20, height: 20, marginTop: -7 },
+          ]}
+          railStyle={{ backgroundColor: '#e5e7eb', height: 6 }}
+        />
 
         <div className="flex justify-between mt-2 text-xs text-gray-400">
-          <span>Principiante (0)</span>
-          <span>Professionista (7)</span>
+          <span>Principiante ({sliderMin})</span>
+          <span>Professionista ({sliderMax})</span>
         </div>
       </div>
 
-      {/* Tipo partita */}
+      {/* Filtri dinamici */}
       <div>
-        <label className="text-sm font-semibold text-gray-700 block mb-4">Tipo partita</label>
+        <label className="text-sm font-semibold text-gray-700 block mb-4">Tipo partita / Genere</label>
         <div className="grid grid-cols-2 gap-3">
-          {types.map((type) => (
-            <label
-                key={type}
+          {config.filters?.map((f) => {
+            const isChecked = selectedValues.includes(f.value);
+            return (
+              <label
+                key={f.value}
                 className={`relative flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all duration-200
-                    ${selectedTypes.includes(type)
-                    ? 'border-accent bg-accent/5 text-accent'
-                    : isDisabled(type)
-                        ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                        : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'}
+                  ${isChecked ? 'border-accent bg-accent/5 text-accent' : 'border-gray-200 bg-white hover:border-gray-300 text-gray-700'}
                 `}
+                title={f.description}
+              >
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => handleCheckboxChange(f.value)}
+                  className="sr-only"
+                />
+                <div
+                  className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200
+                    ${isChecked ? 'border-accent bg-accent' : 'border-gray-300 bg-white'}
+                  `}
                 >
-                <div className="relative">
-                    <input
-                    type="checkbox"
-                    checked={selectedTypes.includes(type)}
-                    disabled={isDisabled(type)}
-                    onChange={() => handleCheckboxChange(type)}
-                    className="sr-only"
-                    />
-                    <div
-                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200
-                        ${selectedTypes.includes(type)
-                        ? 'border-accent bg-accent'
-                        : isDisabled(type)
-                            ? 'border-gray-300 bg-gray-200'
-                            : 'border-gray-300 bg-white'}
-                    `}
-                    >
-                    {selectedTypes.includes(type) && (
-                        <svg
-                        className="w-3 h-3 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        >
-                        <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                        />
-                        </svg>
-                    )}
-                    </div>
+                  {isChecked && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
                 </div>
-                <span className="text-sm font-medium">{type}</span>
-            </label>
-          ))}
+                <span className="text-sm font-medium line-clamp-1">{f.description}</span>
+              </label>
+            );
+          })}
         </div>
+      </div>
+
+      <div className="text-xs text-gray-400">
+        <strong>Debug:</strong> filter mask = {filter} (hex: {filter.toString(16)})
       </div>
 
       <div className="h-[2px] bg-gray-100" />
@@ -197,12 +142,12 @@ export function FiltersPanel({ onClose }) {
           Azzera filtri
         </button>
         <button
-            onClick={onClose}
-            className="flex-1 py-3 px-4 text-sm font-medium text-white bg-accent rounded-xl hover:bg-accent/90 transition-colors duration-200"
-            >
-            Applica filtri
+          onClick={() => { applyFilters(); onClose(); }}
+          className="flex-1 py-3 px-4 text-sm font-medium text-white bg-accent rounded-xl hover:bg-accent/90 transition-colors duration-200"
+        >
+          Applica filtri
         </button>
       </div>
-    </div>
+    </div >
   );
 }

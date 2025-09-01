@@ -2,11 +2,12 @@ import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Landing } from "./routes/Landing/Landing";
 import NotFound from "./routes/NotFound/NotFound";
-import "@fontsource/poppins"; // Defaults to weight 400
-import "@fontsource/poppins/400.css"; // Specify weight
-import "@fontsource/poppins/400-italic.css"; 
+import "@fontsource/poppins";
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/400-italic.css";
 import Favorites from "./routes/Favorites/Favorites";
-import { PitchDeatil, PitchDetail } from "./routes/PitchDetail/PitchDetail";
+import { PitchDetail } from "./routes/PitchDetail/PitchDetail";
+import { FiltersProvider } from "./context/FiltersContext";
 
 const router = createBrowserRouter([
   {
@@ -17,14 +18,14 @@ const router = createBrowserRouter([
       { path: "pitch-detail/:daysOffset/:hour/:minute", element: <PitchDetail /> },
     ],
   },
-
   { path: "*", element: <NotFound /> },
 ]);
 
-
 function App() {
   return (
-    <RouterProvider router={router} />
+    <FiltersProvider>
+      <RouterProvider router={router} />
+    </FiltersProvider>
   );
 }
 
